@@ -142,8 +142,9 @@
                 while(temporal!=null){
                     if(temporal.Simbolos.has(operacion.Valor.Id)){
                         var val=temporal.Simbolos.get(operacion.Valor.Id)
-                        if(operacion.Valor.Param.Tipo=="int" && operacion.Valor.Param.Valor>=0 &&operacion.Valor.Param.Valor<=(val.length-1)){
-                            val=val[operacion.Valor.Param.Valor]
+                        var auxiliar=evaluar(operacion.Valor.Param,ent)
+                        if(auxiliar.Tipo=="int" && auxiliar.Valor>=0 &&auxiliar.Valor<=(val.length-1)){
+                            val=val[auxiliar.Valor]
                             return NuevoSimbolo(val.Valor,val.Tipo)
                         }else{
                             console.log("La posicion: "+operacion.Valor.Param.Valor+" Se encuentra fuera del tamaño indicado anteriormente")
@@ -154,6 +155,8 @@
                 }
                 console.log("No existe el array"+operacion.Valor)
                 return NuevoSimbolo("@error@","error")
+                break
+            case "redondeos":
                 break
         }
         izq=evaluar(operacion.Opizq,ent)
@@ -707,19 +710,39 @@
         while(temporal!=null){
             if(temporal.Simbolos.has(asignar.Id)){
                 var simbol=temporal.Simbolos.get(asignar.Id);
-                if (simbol.Tipo=="double" && val.Tipo=="int"){
+                if(asignar.Exp2){
+                    if(asignar.Exp2.Tipo!="list"){
+                        var n=evaluar(asignar.Exp2,ent)
+                        if(n.Tipo=="int"&&val.Tipo==simbol[0].Tipo){
+                            if(n.Valor>=0 && n.Valor<simbol.length){
+                                simbol[n.Valor]=val
+                                return;
+                            }else{
+                                console.log("Ocurrio un error con: "+asignar.Id)
+                                return
+                            }
+                        }else{
+                            console.log("Ocurrio un error con: "+asignar.Id)
+                                return
+                        }
+                    }else{
+                        if(val.Tipo==simbol[0].Tipo){
+                            simbol.push(val)
+                            temporal.Simbolos.set(asignar.Id,simbol)
+                            return
+                        }
+                    }
+                }else{
+                    if(val.Tipo=="char"){
+                        if(val.Valor.length!=0){
+                            console.log("La longitud de: "+val.Valor+"Es diferente de 1 por lo tanto no se considera de tipo char")
+                            return
+                        }
+                    }
+                    if (simbol.Tipo=="double" && val.Tipo=="int"){
                     val.Tipo="double"
                 }
-                if (simbol.Tipo=="int"&& val.Tipo!="int"){
-                    console.log("No son del mismo tipo: ",simbol.Tipo," double")
-                    return
-                }
-                if(val.Tipo=="char"){
-                    if(val.Valor.length!=0){
-                        console.log("No se puede ingresar: "+val.Valor+" tipo de dato no compatible con char")
-                        return
-                    }
-                }
+                
                 if(simbol.Tipo===val.Tipo){
                     temporal.Simbolos.set(asignar.Id,val);
                     return
@@ -727,6 +750,8 @@
                     console.log("Tipos incompatibles: ",simbol.Tipo,",",val.Tipo)
                     return
                 }
+                }
+                
                 
             }
             temporal=temporal.anterior
@@ -1001,7 +1026,8 @@
     }
 
     function ExecCambios(cambio,ent){
-        switch(cambio.Valor.Tipo){
+        var evaluado=evaluar(cambio.Valor,ent)
+        switch(evaluado.Tipo){
             case "int":
                 switch(cambio.Tipo){
                     case "double":
@@ -1048,21 +1074,7 @@
                         return NuevoSimbolo("@error@","error")
                     
                 }
-            case "ID":
-                var esta=false
-                var temporal=ent
-                while(temporal!=null){
-                    if(temporal.Simbolos.has(cambio.Valor.Valor+"")){
-                        var val=temporal.Simbolos.get(cambio.Valor.Valor)
-                        var cambiesito=Cambios(val,cambio.Tipo)
-                        return ExecCambios(cambiesito,ent)
-                    }
-                    temp=temp.anterior
-                }
-                if(!esta){
-                    console.log("No se detecto la variable")
-                    return NuevoSimbolo("@error@","error")
-                }
+            
             
                     
                 
@@ -1078,83 +1090,65 @@
     }
 
     function ExecLetras(mayus,ent){
+        var evaluado=evaluar(mayus.Valor,ent)
         switch(mayus.Tipo){
             case "String":
-                switch(mayus.Valor.Tipo){
+                switch(evaluado.Tipo){
                     case "double":
-                        return NuevoSimbolo(mayus.Valor.Valor+"","String")
-                    case "ID":
-                        var temporal=ent
-                        var esta=false
-                        while(temporal!=null){
-                            if(temporal.Simbolos.has(mayus.Valor.Valor+"")){
-                                var val=temporal.Simbolos.get(mayus.Valor.Valor)
-                                var camb=Letras(val,"String")
-                                return ExecLetras(camb,ent)
-                            }
-                            temporal=temporal.anterior
-                        }
-                        if(!esta){
-                            console.log("No se encontro la variable deseada")
-                            return NuevoSimbolo("@error@","error")
-                        }
+                        return NuevoSimbolo(evaluado.Valor+"","String")
+                    
                     case "bool":
-                        return NuevoSimbolo(mayus.Valor.Valor+"","String")
+                        return NuevoSimbolo(evaluado.Valor+"","String")
                     case "int":
-                        return NuevoSimbolo(mayus.Valor.Valor+"","String")
+                        return NuevoSimbolo(evaluado.Valor+"","String")
                     default:
                         console.log("Tipo no definido")
                         return NuevoSimbolo("@error@","error")
                 }
             case "upper":
-            if(mayus.Valor.Tipo=="ID"){
-                    var temporal=ent
-                    var esta=false
-                    while(temporal!=null){
-                        if(temporal.Simbolos.has(mayus.Valor.Valor+"")){
-                            var val=temporal.Simbolos.get(mayus.Valor.Valor)
-                            var camb=Letras(val,"upper")
-                            return ExecLetras(camb,ent)
-                        }
-                        temporal=temporal.anterior
-                    }
-                    if(!esta){
-                        console.log("No se encontro la variable")
-                        return NuevoSimbolo("@error@","error")
-                    }
-                }
-                if(mayus.Valor.Tipo=="String"){
-                    var val=mayus.Valor.Valor.toUpperCase()
+            
+                if(evaluado.Tipo=="String"){
+                    var val=evaluado.Valor.toUpperCase()
                     return NuevoSimbolo(val,"String")
                 }else{
                     console.log("Error en la accion Upper")
                     return NuevoSimbolo("@error@","error")
                 }
             case "lower":
-                if(mayus.Valor.Tipo=="ID"){
-                    var temporal=ent
-                    var esta=false
-                    while(temporal!=null){
-                        if(temporal.Simbolos.has(mayus.Valor.Valor+"")){
-                            var val=temporal.Simbolos.get(mayus.Valor.Valor)
-                            var camb=Letras(val,"lower")
-                            return ExecLetras(camb,ent)
-                        }
-                        temporal=temporal.anterior
-                    }
-                    if(!esta){
-                        console.log("No se encontro la variable")
-                        return NuevoSimbolo("@error@","error")
-                    }
-                }
-                if(mayus.Valor.Tipo=="String"){
-                    var baj=mayus.Valor.Valor.toLowerCase()
+                
+                if(evaluado.Tipo=="String"){
+                    var baj=evaluado.Valor.toLowerCase()
                     return NuevoSimbolo(baj,"String")
                 }else{
                     console.log("Error en la accion Lower")
                     return NuevoSimbolo("@error@","error")
                 }
 
+        }
+    }
+
+    const REDONDEOS=function(val,Tipo){
+        return{
+            Valor:val,
+            Tipo:Tipo,
+            TipoIns:"redondeos"
+        }
+    }
+
+    function ExecRedondeos(red,ent){
+        var evaluado=evaluar(red.Valor,ent)
+        switch(red.Tipo){
+            case "round":
+
+
+            case "length":
+                switch(evaluado.Tipo){
+                    case "String":
+                        var largo=evaluado.Valor.length
+                        return NuevoSimbolo(largo,"int")
+                        break;
+                }
+                
         }
     }
     
@@ -1197,6 +1191,7 @@
 "return" return "RRETURN"
 "toLower" return "RTOLOWER"
 "toUpper" return "RTOUPPER"
+"toString" return "RTOSTRING"
 "new" return "NUEVO"
 
 
@@ -1306,6 +1301,7 @@ PARAMS:PARAMS COMITA TIPO ID {$$=$1;$$.push(Creacion($4,$3,null))}
 
 ASIGNAR: ID IGUAL EXP{$$=Asign($1,$3)}
 |ID CAMBIAR {$$=Asign($1,NuevaOp(NuevoSimbolo($1,"ID"),NuevoSimbolo(parseFloat(1),"int"),$2))}
+|ID CORABRE EXP CORCIERRA IGUAL EXP{$$=Asign($1,$6,$3)}
 ;
 
 CAMBIAR:MENOS MENOS {$$=$1}
@@ -1379,6 +1375,7 @@ EXP: EXP MAS EXP {$$=NuevaOp($1,$3,"+");}
 |PARABRE TIPO PARCIERRA EXP %prec CASTEO {$$=NuevoSimbolo({Id:$4,Tipo:$2},"cambio")}
 |RTOUPPER PARABRE EXP PARCIERRA %prec CASTEO {$$=NuevoSimbolo({Id:$3,Tipo:"upper"},"mayus")}
 |RTOLOWER PARABRE EXP PARCIERRA %prec CASTEO {$$=NuevoSimbolo({Id:$3,Tipo:"lower"},"mayus")}
+|RTOSTRING PARABRE EXP PARCIERRA %prec CASTEO {$$=NuevoSimbolo({Id:$3,Tipo:"String"},"mayus")}
 |ID CORABRE EXP CORCIERRA{$$=NuevoSimbolo({Id:$1,Param:$3},"array")}
 ;
 
