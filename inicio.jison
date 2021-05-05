@@ -1,26 +1,27 @@
 %{
+    //Varias variables para guardar simbolos e instrucciones para retornalas a la interfaz
     var Simbolos=new Map();
     var pilaCicl=[];
     var pilaFun=[];
     var consolita=""
     var consolita2=""
-
+    //Objeto para delimitar los bloques de instrucciones
     const Entorno=function(anterior){
         return{
             Simbolos:new Map(),
             anterior:anterior
         }
     }
-
+    //Entorno que engloba el programa
     var Global=Entorno(null)
-
+    //Objeto creado para la creacion de variables
     function NuevoSimbolo(valor,tipo){
         return{
             Valor:valor,
             Tipo:tipo
         }
     }
-
+    //objeto creado para diferenciar las creaciones de operaciones
     function NuevaOp(Operandoizq,Operandoder,tipo){
         return{
             Opizq:Operandoizq,
@@ -28,6 +29,7 @@
             Tipo:tipo
         }
     }
+    //objeto creado para diferenciar la accion print
     const Imprimir=function(Exp,tipo){
 
         return{
@@ -36,7 +38,7 @@
         }
 
     }
-
+    //objeto para diferenciar el operador unario de una resta
     function OperaUna(Operandoizq,tipo){
         return{
             Opizq:Operandoizq,
@@ -44,7 +46,7 @@
             Tipo:tipo
         }
     }
-
+    //funcion dada den taller de jison para ejecutar bloques de instrucciones
     function EjectBloque(LINS,ent){
         var retu=null;
         for(var elemento of LINS){
@@ -103,7 +105,7 @@
         
         return null
     }
-
+    //funcion dada en taller de jison para llevar a cabo operaciones entre valores
     function evaluar(operacion,ent){
         var izq;
         var der;
@@ -157,7 +159,8 @@
                 return NuevoSimbolo("@error@","error")
                 break
             case "redondeos":
-                break
+                var result=ExecRedondeos(REDONDEOS(operacion.Valor.Id,operacion.Valor.Tipo),ent)
+                return result
         }
         izq=evaluar(operacion.Opizq,ent)
         if (operacion.Opder!=null){
@@ -587,7 +590,7 @@
             
         }
     }
-
+    //objeto creado para diferenciar la instruccion crear de otras
     const Creacion=function(ID,Tipo,Exp,Tipo2,Tam){
         return{
             Id:ID,
@@ -598,7 +601,7 @@
             TipoIns:"crear"
         }
     }
-
+    //Funcion daa en taller de jison para ejecutar la creacion de variables
     function ExecCrear(Crear,ent){
         if(ent.Simbolos.has(Crear.Id)){
             console.log("La variable: "+Crear.Id+" ya existe en este ambito")
@@ -636,6 +639,7 @@
             }else{
                 if(Crear.Tipo2){
                     if (Crear.Tipo==Crear.Tipo2){
+                        if(Crear.Tamaño){
                         Crear.Tipo2="array"
                         var numero=evaluar(Crear.Tamaño,ent)
                         valor=[]
@@ -659,6 +663,9 @@
                             valor.push(temporal)
 
                         }
+                    }else{
+
+                    }
                     }else{
                         console.log("Los tipos de datos ingresados en el array no coinciden")
                         return
@@ -694,7 +701,7 @@
         ent.Simbolos.set(Crear.Id,valor)
         
     }
-
+    //Objeto para diferenciar la accion de asignar de otras
     const Asign=function(id,Exp,Exp2){
         return{
             Id:id,
@@ -703,7 +710,7 @@
             Exp2:Exp2
         }
     }
-
+    //Funcion dada en taller de jison para asignar valores a variables
     const ExecAsign=function(asignar,ent){
         var val=evaluar(asignar.Exp,ent)
         var temporal=ent
@@ -761,7 +768,7 @@
 
 
     }
-
+    //Objeto para diferenciar la instruccion if else de otros
     const SI=function(Exp,AreaSi,AreaSiNo){
         return{
             Exp:Exp,
@@ -770,7 +777,7 @@
             TipoIns:"SI"
         }
     }
-
+    //Funcion dada en taller de jison para ejecutar un bloque if o else
     function ExecSI(SI,ent){
         var cond=evaluar(SI.Exp,ent)
         if (cond.Tipo="bool"){
@@ -785,7 +792,7 @@
             console.log("Se esperab una condicion dentro del if")
         }
     }
-
+    //Objeto para diferenciar el switch de lo demas
     const SWITCHI=function(Exp, Lcases,Default){
         return{
             Exp:Exp,
@@ -794,14 +801,14 @@
             TipoIns:"switch"
         }
     }
-
+    //Objeto para diferenciar los casos en un switch
     const Cases=function(Exp,Area){
         return{
             Exp:Exp,
             Area:Area,
         }
     }
-
+    //Funcion dada en taller de jison para ejecutar un switch-case
     function ExecSwitchi(Switchi,ent){
         pilaCicl.push("switch")
         var eject=false
@@ -831,13 +838,13 @@
         pilaCicl.pop()
         return 
     }
-
+    //Objeto para diferenciar la instruccion rompert o break
     const ROMPER=function(){
         return{
             TipoIns:"break"
         }
     }
-
+    //Objeto para diferencias el ciclo while de otros
     const WHILES=function(Exp,Area){
         return{
             Exp:Exp,
@@ -845,7 +852,7 @@
             TipoIns:"while"
         }
     }
-
+    //Funcion dada en taller de jison para ejecutar un ciclo while
     function ExecWhiles(Whiles,ent){
         pilaCicl.push("while");
         
@@ -871,7 +878,15 @@
             }
         }
     }
-
+    //Objeto para diferencias el ciclo do while de un while normal
+    const WHILES2=function(Exp,Area){
+        return{
+            Exp:Exp,
+            Area:Area,
+            TipoIns:"do while"
+        }
+    }
+    //Objeto para diferenciar el ciclo for
     const FORES=function(Expinicio,Expfin,Expavance,Area){
         return{
             Expinicio:Expinicio,
@@ -881,7 +896,7 @@
             TipoIns:"for"
         }
     }
-
+    //Funcion dada en taller de jison para ejectuar un ciclo for
     function ExecFores(desde,ent){
         pilaCicl.push("for")
         var nuevito=Entorno(ent)
@@ -911,13 +926,14 @@
         pilaCicl.pop();
         return
     }
+    //Objeto dado en taller de jison para realizar retornos
     const RETORNAR=function(Exp){
         return{
             Exp:Exp,
             TipoIns:"return"
         }
     }
-
+    //Objeto para diferenciar las funciones
     const FUNCIONAR=function(id,param,tipo,area){
         return{
             id:id,
@@ -927,7 +943,7 @@
             TipoIns:"funcion"
         }
     }
-
+    //Funcion dada en taller de jison para ejecutar el contenido de una funcion
     function ExecFuncionar(elem,ent){
         var name=elem.id+"$"
         if(ent.Simbolos.has(name)){
@@ -936,7 +952,7 @@
         }
         ent.Simbolos.set(name,elem)
     }
-
+    //Objeto para diferencias las llamadas
     const LLAMADA=function(id,param){
         return{
             Id:id,
@@ -944,7 +960,7 @@
             TipoIns:"llamada"
         }
     }
-
+    //Funcion dada en taller de jison para llamadas a metodos y funciones
     function ExecLlamar(llamada,ent){
         var name=llamada.Id+"$"
         var resul=[]
@@ -1006,7 +1022,7 @@
         pilaFun.pop()
         return retorno
     }
-
+    //objeto a utilizar para realizar operaciones ++ y --
     const Incrementos=function(id,Exp){
         return{
             
@@ -1016,7 +1032,7 @@
         }
 
     }
-
+    //objeto para diferencias los casteos entre datos
     const Cambios=function(val,Tipo){
         return{
             Valor:val,
@@ -1024,7 +1040,7 @@
             TipoIns:"cambio"
         }
     }
-
+    //Funcion a ejecutar para realizar casteos entre diferentes datos
     function ExecCambios(cambio,ent){
         var evaluado=evaluar(cambio.Valor,ent)
         switch(evaluado.Tipo){
@@ -1074,13 +1090,15 @@
                         return NuevoSimbolo("@error@","error")
                     
                 }
+            case "typeof":
+
             
             
                     
                 
         }
     }
-
+    //objeto para diferencias los casteos
     const Letras=function(val,Tipo){
         return{
             Valor:val,
@@ -1088,7 +1106,7 @@
             TipoIns:"mayus"
         }
     }
-
+    //Funcion a ejecutar para realizar los casteos y funciones lower y upper
     function ExecLetras(mayus,ent){
         var evaluado=evaluar(mayus.Valor,ent)
         switch(mayus.Tipo){
@@ -1126,7 +1144,7 @@
 
         }
     }
-
+    //Objeto para poder diferencias redondeos
     const REDONDEOS=function(val,Tipo){
         return{
             Valor:val,
@@ -1134,12 +1152,15 @@
             TipoIns:"redondeos"
         }
     }
-
+    //Funcion a ejecutar para lso redondeos y truncamientos
     function ExecRedondeos(red,ent){
         var evaluado=evaluar(red.Valor,ent)
         switch(red.Tipo){
             case "round":
-
+                if(evaluado.Tipo=="double"){
+                    var resultado=Math.round(evaluado.Valor)
+                    return NuevoSimbolo(resultado,"int")
+                }
 
             case "length":
                 switch(evaluado.Tipo){
@@ -1148,8 +1169,17 @@
                         return NuevoSimbolo(largo,"int")
                         break;
                 }
+            case "truncate":
+                if(evaluado.Tipo=="double"){
+                    var resultado=Math.trunc(evaluado.Valor)
+                    return NuevoSimbolo(resultado,"int")
+                }
                 
         }
+    }
+
+    const Continue=function(){
+        TipoIns:"continue"
     }
     
 
@@ -1192,13 +1222,15 @@
 "toLower" return "RTOLOWER"
 "toUpper" return "RTOUPPER"
 "toString" return "RTOSTRING"
+"truncate" return "RTRUNCATE"
+"round" return "RROUND"
 "new" return "NUEVO"
 
 
 
 
 \n {};
-"imprimir" return "IMPRIMIR";
+"print" return "IMPRIMIR";
 ";" return "PTCOMA";
 "," return "COMITA"
 "(" return "PARABRE";
@@ -1225,6 +1257,9 @@
 ":" return "DPUNTOS"
 "[" return "CORABRE"
 "]" return "CORCIERRA"
+"." return "RPUNTO"
+"list" return "RLISTITA"
+"add" return "RADD"
 
 [0-9]+("."[0-9]+)+\b return "DECIMAL"
 [0-9]+\b return "NUMERO"
@@ -1267,7 +1302,9 @@ INS: IMPRIMIR PARABRE EXP PARCIERRA PTCOMA{$$=Imprimir($3,"imprimir");}
 |IF {$$=$1}
 |SWITCH {$$=$1}
 |RBREAK PTCOMA {$$=ROMPER()}
+|RCONTINUAR PTCOMA{$$=Continue()}
 |MIENTRAS{$$=$1}
+|MIENTRAS2 PTCOMA{$$=$1}
 |DESDE{$$=$1}
 |FUNCION {$$=$1;}
 |LLAMAR PTCOMA {$$=$1;}
@@ -1283,6 +1320,7 @@ CREAR: TIPO ID {$$=Creacion($2,$1,null);}
 |TIPO ID IGUAL EXP {$$=Creacion($2,$1,$4);}
 |TIPO CORABRE CORCIERRA ID IGUAL NUEVO TIPO CORABRE EXP CORCIERRA {$$=Creacion($4,$1,null,$7,$9)}
 |TIPO CORABRE CORCIERRA ID IGUAL LABRE LISTAEXP LCIERRA {$$=Creacion($4,$1,$7,$1,null)}
+|RLISTITA MENOR TIPO MAYOR ID IGUAL NUEVO RLISTITA MENOR TIPO MAYOR {$$=Creacion($5,$3,null,$10,null)}
 ;
 
 FUNCION:TIPO ID PARABRE PARCIERRA AREA{$$=FUNCIONAR($2,[],$1,$5)}
@@ -1302,6 +1340,8 @@ PARAMS:PARAMS COMITA TIPO ID {$$=$1;$$.push(Creacion($4,$3,null))}
 ASIGNAR: ID IGUAL EXP{$$=Asign($1,$3)}
 |ID CAMBIAR {$$=Asign($1,NuevaOp(NuevoSimbolo($1,"ID"),NuevoSimbolo(parseFloat(1),"int"),$2))}
 |ID CORABRE EXP CORCIERRA IGUAL EXP{$$=Asign($1,$6,$3)}
+|ID PUNTO RADD PARABRE EXP PARCIERRA {$$=Asign($1,$5,NuevoSimbolo("nada","list"))}
+|ID CORABRE CORABRE EXP CORCIERRA CORCIERRA IGUAL EXP{$$=Asign($1,$8,NuevaOp($4,NuevoSimbolo(1,"int"),"+"))}
 ;
 
 CAMBIAR:MENOS MENOS {$$=$1}
@@ -1325,6 +1365,8 @@ AREA: LABRE LINS LCIERRA {$$=$2;}
 ;
 
 MIENTRAS: RWHILE PARABRE EXP PARCIERRA AREA{$$=WHILES($3,$5)}
+;
+MIENTRAS2:RDO AREA RWHILE PARABRE EXP PARCIERRA {$$=WHILES2($5,$2)}
 ;
 DESDE: RFOR PARABRE CREAR PTCOMA EXP PTCOMA INCREMENTO PARCIERRA AREA {$$=FORES($3,$5,$7,$9)}
 |RFOR PARABRE ASIGNAR PTCOMA EXP PTCOMA INCREMENTO PARCIERRA AREA {$$=FORES($3,$5,$7,$9)}
@@ -1376,7 +1418,11 @@ EXP: EXP MAS EXP {$$=NuevaOp($1,$3,"+");}
 |RTOUPPER PARABRE EXP PARCIERRA %prec CASTEO {$$=NuevoSimbolo({Id:$3,Tipo:"upper"},"mayus")}
 |RTOLOWER PARABRE EXP PARCIERRA %prec CASTEO {$$=NuevoSimbolo({Id:$3,Tipo:"lower"},"mayus")}
 |RTOSTRING PARABRE EXP PARCIERRA %prec CASTEO {$$=NuevoSimbolo({Id:$3,Tipo:"String"},"mayus")}
+|RROUND PARABRE EXP PARCIERRA %prec CASTEO {$$=NuevoSimbolo({Id:$3,Tipo:"round"},"redondeos")}
+|RTRUNCATE PARABRE EXP PARCIERRA %prec CASTEO {$$=NuevoSimbolo({Id:$3,Tipo:"truncate"},"redondeos")}
+|RTYPE PARABRE EXP PARCIERRA %prec CASTEO {$$=NuevoSimbolo({Id:$3,Tipo:"typeof"},"mayus")}
 |ID CORABRE EXP CORCIERRA{$$=NuevoSimbolo({Id:$1,Param:$3},"array")}
+|ID CORABRE CORABRE EXP CORCIERRA CORCIERRA {$$=NuevoSimbolo({Id:$1,Param:$4},"list"))}
 ;
 
 LISTAEXP:LISTAEXP COMITA EXP{$$=$1;$$.push($3)}
