@@ -158,6 +158,24 @@
                 console.log("No existe el array"+operacion.Valor)
                 return NuevoSimbolo("@error@","error")
                 break
+            case "list":
+                var temporal=ent
+                while(temporal!=null){
+                    if(temporal.Simbolos.has(operacion.Valor.Id)){
+                        var val=temporal.Simbolos.get(operacion.Valor.Id)
+                        var auxiliar=evaluar(operacion.Valor.Param,ent)
+                        if(auxiliar.Tipo=="int" && auxiliar.Valor>=0 &&auxiliar.Valor<=(val.length-1)){
+                            val=val[auxiliar.Valor]
+                            return NuevoSimbolo(val.Valor,val.Tipo)
+                        }else{
+                            console.log("La posicion: "+operacion.Valor.Param.Valor+" Se encuentra fuera del tamaño indicado anteriormente")
+                            return NuevoSimbolo("@error@","error")
+                        }
+                    }
+                    temporal=temporal.anterior
+                }
+                console.log("No existe el array"+operacion.Valor)
+                return NuevoSimbolo("@error@","error")
             case "redondeos":
                 var result=ExecRedondeos(REDONDEOS(operacion.Valor.Id,operacion.Valor.Tipo),ent)
                 return result
@@ -664,7 +682,9 @@
 
                         }
                     }else{
-
+                        valor=[]
+                        Crear.Tipo2="list"
+                        //valor.push(NuevoSimbolo("list",Crear.Tipo))
                     }
                     }else{
                         console.log("Los tipos de datos ingresados en el array no coinciden")
@@ -1340,7 +1360,7 @@ PARAMS:PARAMS COMITA TIPO ID {$$=$1;$$.push(Creacion($4,$3,null))}
 ASIGNAR: ID IGUAL EXP{$$=Asign($1,$3)}
 |ID CAMBIAR {$$=Asign($1,NuevaOp(NuevoSimbolo($1,"ID"),NuevoSimbolo(parseFloat(1),"int"),$2))}
 |ID CORABRE EXP CORCIERRA IGUAL EXP{$$=Asign($1,$6,$3)}
-|ID PUNTO RADD PARABRE EXP PARCIERRA {$$=Asign($1,$5,NuevoSimbolo("nada","list"))}
+|ID RPUNTO RADD PARABRE EXP PARCIERRA {$$=Asign($1,$5,NuevoSimbolo("nada","list"))}
 |ID CORABRE CORABRE EXP CORCIERRA CORCIERRA IGUAL EXP{$$=Asign($1,$8,NuevaOp($4,NuevoSimbolo(1,"int"),"+"))}
 ;
 
