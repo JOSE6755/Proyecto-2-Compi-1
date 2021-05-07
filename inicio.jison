@@ -684,7 +684,7 @@
                     }else{
                         valor=[]
                         Crear.Tipo2="list"
-                        //valor.push(NuevoSimbolo("list",Crear.Tipo))
+                        valor.push(NuevoSimbolo("list",Crear.Tipo))
                     }
                     }else{
                         console.log("Los tipos de datos ingresados en el array no coinciden")
@@ -742,7 +742,7 @@
                         var n=evaluar(asignar.Exp2,ent)
                         if(n.Tipo=="int"&&val.Tipo==simbol[0].Tipo){
                             if(n.Valor>=0 && n.Valor<simbol.length){
-                                simbol[n.Valor]=val
+                                simbol[n.Valor+1]=val
                                 return;
                             }else{
                                 console.log("Ocurrio un error con: "+asignar.Id)
@@ -1110,8 +1110,7 @@
                         return NuevoSimbolo("@error@","error")
                     
                 }
-            case "typeof":
-
+           
             
             
                     
@@ -1160,6 +1159,37 @@
                 }else{
                     console.log("Error en la accion Lower")
                     return NuevoSimbolo("@error@","error")
+                }
+            case "typeof":
+                if(evaluado.Tipo!="int" &&evaluado.Tipo!="double" &&evaluado.Tipo!="char"&&evaluado.Tipo!="String"&&evaluado.Tipo!="bool" ){
+                    var temporal=ent
+                    var encontrado=false
+                    while(temporal!=null){
+                        if(temporal.Simbolos.has(mayus.Valor.Valor+"")){
+                            var val=temporal.Simbolos.get(mayus.Valor.Valor)
+                            if(val[0]!="list"){
+                                return NuevoSimbolo("array","String")
+                            }else{
+                                return NuevoSimbolo("lista","String")
+                            }
+                        }
+                        temporal=temporal.anterior
+                    }
+                    console.log("no se encontro la variable deseada");
+                    return NuevoSimbolo("@error@","error")
+                }else{
+                    switch(evaluado.Tipo){
+                        case "char":
+                            return NuevoSimbolo("char","String")
+                        case "int":
+                            return NuevoSimbolo("int","String")
+                        case "double":
+                            return NuevoSimbolo("double","String")
+                        case "bool":
+                            return NuevoSimbolo("bool","String")
+                        case "String":
+                            return NuevoSimbolo("String","String")
+                    }
                 }
 
         }
@@ -1245,6 +1275,7 @@
 "truncate" return "RTRUNCATE"
 "round" return "RROUND"
 "new" return "NUEVO"
+"typeof" return "RTYPE"
 
 
 

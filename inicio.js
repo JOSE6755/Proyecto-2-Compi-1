@@ -1315,7 +1315,7 @@ _handle_error:
                         var n=evaluar(asignar.Exp2,ent)
                         if(n.Tipo=="int"&&val.Tipo==simbol[0].Tipo){
                             if(n.Valor>=0 && n.Valor<simbol.length){
-                                simbol[n.Valor]=val
+                                simbol[n.Valor+1]=val
                                 return;
                             }else{
                                 console.log("Ocurrio un error con: "+asignar.Id)
@@ -1683,8 +1683,7 @@ _handle_error:
                         return NuevoSimbolo("@error@","error")
                     
                 }
-            case "typeof":
-
+           
             
             
                     
@@ -1733,6 +1732,37 @@ _handle_error:
                 }else{
                     console.log("Error en la accion Lower")
                     return NuevoSimbolo("@error@","error")
+                }
+            case "typeof":
+                if(evaluado.Tipo!="int" &&evaluado.Tipo!="double" &&evaluado.Tipo!="char"&&evaluado.Tipo!="String"&&evaluado.Tipo!="bool" ){
+                    var temporal=ent
+                    var encontrado=false
+                    while(temporal!=null){
+                        if(temporal.Simbolos.has(mayus.Valor.Valor+"")){
+                            var val=temporal.Simbolos.get(mayus.Valor.Valor)
+                            if(val[0]!="list"){
+                                return NuevoSimbolo("array","String")
+                            }else{
+                                return NuevoSimbolo("lista","String")
+                            }
+                        }
+                        temporal=temporal.anterior
+                    }
+                    console.log("no se encontro la variable deseada");
+                    return NuevoSimbolo("@error@","error")
+                }else{
+                    switch(evaluado.Tipo){
+                        case "char":
+                            return NuevoSimbolo("char","String")
+                        case "int":
+                            return NuevoSimbolo("int","String")
+                        case "double":
+                            return NuevoSimbolo("double","String")
+                        case "bool":
+                            return NuevoSimbolo("bool","String")
+                        case "String":
+                            return NuevoSimbolo("String","String")
+                    }
                 }
 
         }
@@ -2155,84 +2185,86 @@ case 23:return "RROUND"
 break;
 case 24:return "NUEVO"
 break;
-case 25:
+case 25:return "RTYPE"
 break;
-case 26:return "IMPRIMIR";
+case 26:
 break;
-case 27:return "PTCOMA";
+case 27:return "IMPRIMIR";
 break;
-case 28:return "COMITA"
+case 28:return "PTCOMA";
 break;
-case 29:return "PARABRE";
+case 29:return "COMITA"
 break;
-case 30:return "PARCIERRA";
+case 30:return "PARABRE";
 break;
-case 31:return "TRUE";
+case 31:return "PARCIERRA";
 break;
-case 32:return "FALSE";
+case 32:return "TRUE";
 break;
-case 33:return "MAYORIG";
+case 33:return "FALSE";
 break;
-case 34:return "MENORIG";
+case 34:return "MAYORIG";
 break;
-case 35:return "IGUALACION";
+case 35:return "MENORIG";
 break;
-case 36:return "DIFERENTE";
+case 36:return "IGUALACION";
 break;
-case 37:return "IGUAL";
+case 37:return "DIFERENTE";
 break;
-case 38:return "MAS";
+case 38:return "IGUAL";
 break;
-case 39:return "MENOS";
+case 39:return "MAS";
 break;
-case 40:return "POR";
+case 40:return "MENOS";
 break;
-case 41:return "DIV";
+case 41:return "POR";
 break;
-case 42:return "MODULO";
+case 42:return "DIV";
 break;
-case 43:return "MAYOR";
+case 43:return "MODULO";
 break;
-case 44:return "MENOR";
+case 44:return "MAYOR";
 break;
-case 45:return "AND";
+case 45:return "MENOR";
 break;
-case 46:return "OR";
+case 46:return "AND";
 break;
-case 47:return "NOT";
+case 47:return "OR";
 break;
-case 48:return "LABRE";
+case 48:return "NOT";
 break;
-case 49:return "LCIERRA";
+case 49:return "LABRE";
 break;
-case 50:return "DPUNTOS"
+case 50:return "LCIERRA";
 break;
-case 51:return "CORABRE"
+case 51:return "DPUNTOS"
 break;
-case 52:return "CORCIERRA"
+case 52:return "CORABRE"
 break;
-case 53:return "RPUNTO"
+case 53:return "CORCIERRA"
 break;
-case 54:return "RLISTITA"
+case 54:return "RPUNTO"
 break;
-case 55:return "RADD"
+case 55:return "RLISTITA"
 break;
-case 56:return "DECIMAL"
+case 56:return "RADD"
 break;
-case 57:return "NUMERO"
+case 57:return "DECIMAL"
 break;
-case 58:return "ID"
+case 58:return "NUMERO"
 break;
-case 59:yy_.yytext=yy_.yytext.substr(1,yy_.yyleng-2); return "Cadena"
+case 59:return "ID"
 break;
-case 60:return 5;
+case 60:yy_.yytext=yy_.yytext.substr(1,yy_.yyleng-2); return "Cadena"
 break;
-case 61:console.log("El simbolo "+yy_.yytext+" no se reconoce")
+case 61:return 5;
+break;
+case 62:console.log("El simbolo "+yy_.yytext+" no se reconoce")
 break;
 }
 },
-rules: [/^(?:\/\/.*)/i,/^(?:[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/])/i,/^(?:[ \t\r]+)/i,/^(?:int\b)/i,/^(?:double\b)/i,/^(?:Boolean\b)/i,/^(?:char\b)/i,/^(?:String\b)/i,/^(?:break\b)/i,/^(?:if\b)/i,/^(?:else\b)/i,/^(?:switch\b)/i,/^(?:case\b)/i,/^(?:Default\b)/i,/^(?:while\b)/i,/^(?:for\b)/i,/^(?:funcion\b)/i,/^(?:void\b)/i,/^(?:return\b)/i,/^(?:toLower\b)/i,/^(?:toUpper\b)/i,/^(?:toString\b)/i,/^(?:truncate\b)/i,/^(?:round\b)/i,/^(?:new\b)/i,/^(?:\n)/i,/^(?:print\b)/i,/^(?:;)/i,/^(?:,)/i,/^(?:\()/i,/^(?:\))/i,/^(?:true\b)/i,/^(?:false\b)/i,/^(?:>=)/i,/^(?:<=)/i,/^(?:==)/i,/^(?:!=)/i,/^(?:=)/i,/^(?:\+)/i,/^(?:-)/i,/^(?:\*)/i,/^(?:\/)/i,/^(?:%)/i,/^(?:>)/i,/^(?:<)/i,/^(?:&&)/i,/^(?:\|\|)/i,/^(?:!)/i,/^(?:\{)/i,/^(?:\})/i,/^(?::)/i,/^(?:\[)/i,/^(?:\])/i,/^(?:\.)/i,/^(?:list\b)/i,/^(?:add\b)/i,/^(?:[0-9]+(\.[0-9]+)+\b)/i,/^(?:[0-9]+\b)/i,/^(?:[a-zA-Z][a-zA-Z0-9_]*)/i,/^(?:"((\\")|[^\n\"])*")/i,/^(?:$)/i,/^(?:.)/i],
-conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61],"inclusive":true}}
+rules: [/^(?:\/\/.*)/i,/^(?:[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/])/i,/^(?:[ \t\r]+)/i,/^(?:int\b)/i,/^(?:double\b)/i,/^(?:Boolean\b)/i,/^(?:char\b)/i,/^(?:String\b)/i,/^(?:break\b)/i,/^(?:if\b)/i,/^(?:else\b)/i,/^(?:switch\b)/i,/^(?:case\b)/i,/^(?:Default\b)/i,/^(?:while\b)/i,/^(?:for\b)/i,/^(?:funcion\b)/i,/^(?:void\b)/i,/^(?:return\b)/i,/^(?:toLower\b)/i,/^(?:toUpper\b)/i,/^(?:toString\b)/i,/^(?:truncate\b)/i,/^(?:round\b)/i,/^(?:new\b)/i,/^(?:typeof\b)/i,/^(?:\n)/i,/^(?:print\b)/i,/^(?:;)/i,/^(?:,)/i,/^(?:\()/i,/^(?:\))/i,/^(?:true\b)/i,/^(?:false\b)/i,/^(?:>=)/i,/^(?:<=)/i,/^(?:==)/i,/^(?:!=)/i,/^(?:=)/i,/^(?:\+)/i,/^(?:-)/i,/^(?:\*)/i,/^(?:\/)/i,/^(?:%)/i,/^(?:>)/i,/^(?:<)/i,/^(?:&&)/i,/^(?:\|\|)/i,/^(?:!)/i,/^(?:\{)/i,/^(?:\})/i,/^(?::)/i,/^(?:\[)/i,/^(?:\])/i,/^(?:\.)/i,/^(?:list\b)/i,/^(?:add\b)/i,/^(?:[0-9]+(\.[0-9]+)+\b)/i,/^(?:[0-9]+\b)/i,/^(?:[a-zA-Z][a-zA-Z0-9_]*)/i,/^(?:"((\\")|[^\n\"])*")/i,/^(?:$)/i,/^(?:.)/i],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62],"inclusive":true}}
 });
 return lexer;
 })();
