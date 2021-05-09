@@ -90,7 +90,15 @@ export class EditorComponent implements OnInit {
     }
     this.analizarService.ejecutar(texto).subscribe((res:any)=>{
       console.log(res)
-      this.consola.setValue(res.consola);
+      this.consola.setValue(res.consola+"\n"+res.error);
+      console.log(res.arbol)
+      const blob = 
+        new Blob([
+                 res.arbol], 
+                 {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "arbol.ty");
+      
+      
     }, err=>{
       console.log(err)
     });
@@ -120,6 +128,9 @@ export class EditorComponent implements OnInit {
                  this.code], 
                  {type: "text/plain;charset=utf-8"});
     saveAs(blob, "nombreArchivo.ty");
+}
+limpiar(){
+  this.consola.setValue("")
 }
 
 }

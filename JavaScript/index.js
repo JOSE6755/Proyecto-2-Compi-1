@@ -1,27 +1,26 @@
 
+
 var parser=require("./inicio")
-parser.parse(`
-void Principal(){
-    print("-----------Factorial Iterativo---------");
-    print("8! = " + factorialIterativo(8));
-    print("-----------Factorial Recursivo---------");
-    print("8! = " + factorialRecursivo(8));
-}
+'use strict'
+const express = require('express');
+const bodParser = require('body-parser');
+let cors = require('cors');
 
-int factorialIterativo(int n){
-    int resultado = 1;
-    for (int i = 1; i <= n; i++) {
-        resultado = resultado * i;
+const app = express()
+
+
+app.use(bodParser.json({limit:'50mb', extended:true}))
+app.use(bodParser.urlencoded({limit:'50mb', extended:true}))
+app.use(cors())
+
+app.get('/',(req,res)=>{
+    var respuesta={
+        message:"Todo bien"
     }
-    return resultado;
-}
+    res.send(respuesta)
+})
 
-int factorialRecursivo(int n) {
-    if (n == 0) {
-        return 1;
-    }
-    return (n * factorialRecursivo(n - 1));
-}
-
-exec Principal();
-`)
+const analizar = require('./Endpoint/analizar')(parser, app)
+app.listen('3000', ()=>{
+    console.log("Servidor en puerto 4200")
+})

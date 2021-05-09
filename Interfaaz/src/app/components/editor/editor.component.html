@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="#">Ejemplo OLC1</a>
+    <a class="navbar-brand" href="#">Interprete 201907131</a>
     
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
         aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,7 +17,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="card text-white bg-primary mb-3">
-                        <div class="card-header">Editor
+                        <div class="card-header">
                             
                                
                                     <button (click)="analizar()" type="button" class="btn btn-primary">Ejecutar</button>
@@ -42,7 +42,9 @@
                 </div>
                 <div class="col-md-6">
                     <div class="card text-white bg-primary mb-3">
-                        <div class="card-header">Consola</div>
+                        <div class="card-header">Consola
+                            <button (click)="limpiar()"type="button" class="btn btn-primary">Limpiar consola</button>
+                        </div>
                         <div class="card-body">
                             <div style="width: auto; height: 500px;">
                                 <ngx-monaco-editor [formControl]="consola" [options]="consoleOptions"
