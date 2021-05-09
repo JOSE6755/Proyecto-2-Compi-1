@@ -107,7 +107,7 @@
                         errores+="Break fuera de un switch o ciclo detectado\n"
                     }
                     break;
-                case "continuea":
+                case "continue":
                     if(pilaCicl.length>0){
                         return elemento
                     }else{
@@ -979,6 +979,8 @@
                     }else if(eject){
                         pilaCicl.pop()
                         return eject
+                    }else if(eject && eject.TipoIns=="continue"){
+                        continue
                     }
                 }else{
                     break
@@ -1011,6 +1013,8 @@
             }else if(eject){
                 pilaCicl.pop()
                 return eject
+            }else if(eject && eject.TipoIns=="continue"){
+                continue
             }
             if(result.Tipo=="bool"){
                 if(result.Valor){
@@ -1066,6 +1070,9 @@
                 var par2=NuevaOp(desde.Expavance.Exp.Opizq,desde.Expavance.Exp.Opder,desde.Expavance.Exp.Tipo)
                 var par3=Asign(par1,par2)
                 ExecAsign(par3,nuevito)
+            }
+            if(eject && eject.TipoIns=="continue"){
+                continue
             }
         }
         pilaCicl.pop();
@@ -1206,6 +1213,9 @@
                     case "String":
                         return NuevoSimbolo(evaluado.Valor+"","String")
                         break
+                    case "int":
+                        
+                        return NuevoSimbolo(evaluado.Valor,"int")
                     default:
                         console.log("Tipo de dato incorrecto")
                         errores+="Tipo de dato incorrecton\n"
@@ -1240,6 +1250,8 @@
                         var nuevo=evaluado.Valor.charCodeAt(0)
                         return NuevoSimbolo(nuevo,"double")
                         break
+                    case "char":
+                        return NuevoSimbolo(evaluado.Valor,"char")
                     default:
                         console.log("Tipo de dato incorrecto")
                          errores+="Tipo de dato incorrecton\n"
@@ -1276,6 +1288,8 @@
                         return NuevoSimbolo(evaluado.Valor,"String")
                     case "char":
                             return NuevoSimbolo(evaluado.Valor+"","String")
+                    case "String":
+                        return NuevoSimbolo(evaluado.Valor,"String")
                     default:
                         console.log("Tipo no definido")
                         errores+="Tipo no definido\n"
